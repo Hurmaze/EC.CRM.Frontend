@@ -1,1 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+
+.button-main-color {
+    color: #7547dd
+}
+
+.primary-text {
+    font-family: sans-serif;
+}
+
+.secondary-text {
+    font-family: serif;
+}
