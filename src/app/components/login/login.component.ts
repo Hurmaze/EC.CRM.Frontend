@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../DTOs/Requests/login-request';
 
 @Component({
   selector: 'app-login',
@@ -9,4 +11,11 @@ import { Component } from '@angular/core';
 })
 export class LoginComponent {
 
+  constructor(private authService: AuthService) { }
+
+  login(loginRequest: LoginRequest) : void {
+    this.authService.login(loginRequest).subscribe((jwtDto) => {
+      localStorage.setItem('jwtToken', jwtDto.token);
+    });
+  }
 }
