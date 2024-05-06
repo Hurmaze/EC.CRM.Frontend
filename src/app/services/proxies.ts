@@ -9,21 +9,42 @@
 // ReSharper disable InconsistentNaming
 
 import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
-import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
+import { Observable, from as _observableFrom, throwError as _observableThrow, of as _observableOf } from 'rxjs';
 import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase, HttpContext } from '@angular/common/http';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+
+export class BaseApiClient {
+  authToken = '';
+  protected constructor() {
+  }
+  
+  setAuthToken(token: string) {
+      this.authToken = token;
+  }
+
+  protected transformOptions(options: any): Promise<any> {
+    if (this.authToken === '' || this.authToken === null || this.authToken === undefined){
+        console.log('No token was set.')
+        return Promise.resolve(options);
+    }
+    
+    options.headers = options.headers.append('authorization', `Bearer ${this.authToken}`);
+    return Promise.resolve(options);
+  }
+}
 
 @Injectable({
     providedIn: 'root'
 })
-export class Client {
+export class Client extends BaseApiClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        super();
         this.http = http;
         this.baseUrl = baseUrl ?? "";
     }
@@ -32,7 +53,7 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    login(body: LoginRequest | undefined): Observable<AuthResponse> {
+    login(body: LoginRequest | undefined, httpContext?: HttpContext): Observable<AuthResponse> {
         let url_ = this.baseUrl + "/api/Auth/login";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -43,13 +64,16 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processLogin(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -88,7 +112,7 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    changePassword(body: ChangePasswordRequest | undefined): Observable<void> {
+    changePassword(body: ChangePasswordRequest | undefined, httpContext?: HttpContext): Observable<void> {
         let url_ = this.baseUrl + "/api/Auth/change-password";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -99,12 +123,15 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
             })
         };
 
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("patch", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processChangePassword(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -142,7 +169,7 @@ export class Client {
      * @param criteriasCsv (optional) 
      * @return Success
      */
-    registerCriterias(criteriasCount: number | undefined, criteriasCsv: FileParameter | undefined): Observable<void> {
+    registerCriterias(criteriasCount: number | undefined, criteriasCsv: FileParameter | undefined, httpContext?: HttpContext): Observable<void> {
         let url_ = this.baseUrl + "/api/Criterias/register-criterias?";
         if (criteriasCount === null)
             throw new Error("The parameter 'criteriasCount' cannot be null.");
@@ -161,11 +188,14 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processRegisterCriterias(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -190,6 +220,14 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -201,7 +239,7 @@ export class Client {
     /**
      * @return Success
      */
-    criterias(): Observable<Criteria[]> {
+    criterias(httpContext?: HttpContext): Observable<Criteria[]> {
         let url_ = this.baseUrl + "/api/Criterias";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -209,12 +247,15 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processCriterias(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -241,6 +282,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Criteria[];
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -252,7 +301,7 @@ export class Client {
     /**
      * @return Success
      */
-    mentors(): Observable<MentorResponse[]> {
+    mentorsAll(httpContext?: HttpContext): Observable<MentorResponse[]> {
         let url_ = this.baseUrl + "/api/Mentors";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -260,17 +309,20 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processMentors(response_);
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processMentorsAll(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processMentors(response_ as any);
+                    return this.processMentorsAll(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MentorResponse[]>;
                 }
@@ -279,7 +331,7 @@ export class Client {
         }));
     }
 
-    protected processMentors(response: HttpResponseBase): Observable<MentorResponse[]> {
+    protected processMentorsAll(response: HttpResponseBase): Observable<MentorResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -292,6 +344,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse[];
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -303,8 +363,8 @@ export class Client {
     /**
      * @return Success
      */
-    anonymousGET(userUid: string): Observable<MentorResponse> {
-        let url_ = this.baseUrl + "/{userUid}";
+    mentorsGET(userUid: string, httpContext?: HttpContext): Observable<MentorResponse> {
+        let url_ = this.baseUrl + "/api/Mentors/{userUid}";
         if (userUid === undefined || userUid === null)
             throw new Error("The parameter 'userUid' must be defined.");
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
@@ -314,17 +374,20 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAnonymousGET(response_);
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processMentorsGET(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousGET(response_ as any);
+                    return this.processMentorsGET(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MentorResponse>;
                 }
@@ -333,7 +396,7 @@ export class Client {
         }));
     }
 
-    protected processAnonymousGET(response: HttpResponseBase): Observable<MentorResponse> {
+    protected processMentorsGET(response: HttpResponseBase): Observable<MentorResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -346,6 +409,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -357,8 +428,8 @@ export class Client {
     /**
      * @return Success
      */
-    anonymousPOST(userUid: string): Observable<void> {
-        let url_ = this.baseUrl + "/{userUid}";
+    mentorsPOST(userUid: string, httpContext?: HttpContext): Observable<void> {
+        let url_ = this.baseUrl + "/api/Mentors/{userUid}";
         if (userUid === undefined || userUid === null)
             throw new Error("The parameter 'userUid' must be defined.");
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
@@ -368,16 +439,19 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAnonymousPOST(response_);
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processMentorsPOST(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousPOST(response_ as any);
+                    return this.processMentorsPOST(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -386,7 +460,7 @@ export class Client {
         }));
     }
 
-    protected processAnonymousPOST(response: HttpResponseBase): Observable<void> {
+    protected processMentorsPOST(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -396,6 +470,14 @@ export class Client {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -409,8 +491,8 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    anonymousPATCH(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
-        let url_ = this.baseUrl + "/{studentUid}";
+    students(studentUid: string, body: boolean | undefined, httpContext?: HttpContext): Observable<MatchingResponse> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -423,18 +505,21 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAnonymousPATCH(response_);
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("patch", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processStudents(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousPATCH(response_ as any);
+                    return this.processStudents(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MatchingResponse>;
                 }
@@ -443,7 +528,7 @@ export class Client {
         }));
     }
 
-    protected processAnonymousPATCH(response: HttpResponseBase): Observable<MatchingResponse> {
+    protected processStudents(response: HttpResponseBase): Observable<MatchingResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -456,6 +541,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MatchingResponse;
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -468,8 +561,8 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    valuationsPOST(studentUid: string, body: { [key: string]: number; } | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/{studentUid}/valuations";
+    valuationsPOST(studentUid: string, body: { [key: string]: number; } | undefined, httpContext?: HttpContext): Observable<void> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -482,12 +575,15 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processValuationsPOST(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -512,6 +608,14 @@ export class Client {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -523,8 +627,8 @@ export class Client {
     /**
      * @return Success
      */
-    valuationsGET(studentUid: string): Observable<{ [key: string]: number; }> {
-        let url_ = this.baseUrl + "/{studentUid}/valuations";
+    valuationsGET(studentUid: string, httpContext?: HttpContext): Observable<{ [key: string]: number; }> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -534,12 +638,15 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processValuationsGET(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -566,6 +673,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as { [key: string]: number; };
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -578,7 +693,7 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    users(body: CreateUserRequest | undefined): Observable<UserInfoResponse> {
+    users(body: CreateUserRequest | undefined, httpContext?: HttpContext): Observable<UserInfoResponse> {
         let url_ = this.baseUrl + "/api/Users";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -589,13 +704,16 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processUsers(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -622,6 +740,14 @@ export class Client {
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
             return _observableOf(result200);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -634,7 +760,7 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    application(body: StudentApplicationRequest | undefined): Observable<StudentResponse> {
+    application(body: StudentApplicationRequest | undefined, httpContext?: HttpContext): Observable<StudentResponse> {
         let url_ = this.baseUrl + "/application";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -645,13 +771,16 @@ export class Client {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
+            context: httpContext,
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
             return this.processApplication(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
