@@ -1,5 +1,3 @@
-import { Observable } from "rxjs/internal/Observable";
-
 export class BaseApiClient {
   authToken = '';
   protected constructor() {
@@ -17,9 +15,5 @@ export class BaseApiClient {
     
     options.headers = options.headers.append('authorization', `Bearer ${this.authToken}`);
     return Promise.resolve(options);
-  }
-
-  protected transformResult(url_: string, response_: any, arg2: (r: any) => Observable<any>): any {
-    arg2(response_);
   }
 }
