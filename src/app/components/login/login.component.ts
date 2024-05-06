@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../DTOs/Requests/login-request';
+import { Client } from '../../services/proxies';
 
 @Component({
   selector: 'app-login',
@@ -11,11 +11,11 @@ import { LoginRequest } from '../../DTOs/Requests/login-request';
 })
 export class LoginComponent {
 
-  constructor(private authService: AuthService) { }
+  constructor(private client: Client) { }
 
   login(loginRequest: LoginRequest) : void {
-    this.authService.login(loginRequest).subscribe((jwtDto) => {
-      localStorage.setItem('jwtToken', jwtDto.token);
+    this.client.login(loginRequest).subscribe((jwtDto) => {
+      localStorage.setItem('jwtToken', jwtDto.token? jwtDto.token : '');
     });
   }
 }

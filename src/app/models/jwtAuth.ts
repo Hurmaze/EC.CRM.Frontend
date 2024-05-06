@@ -1,3 +1,5 @@
-export interface JwtAuth {
-    token: string
+export interface UserModel {
+    email: string;
+    password: string;
+    roles: string[];
 }
