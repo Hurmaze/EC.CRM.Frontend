@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { LoginRequest } from '../../DTOs/Requests/login-request';
-import { Client } from '../../services/proxies';
+import { Client, LoginRequest } from '../../services/proxies';
 
 @Component({
   selector: 'app-login',

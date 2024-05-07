@@ -10,7 +10,7 @@ import { roles } from './common/roles';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
-    { path: 'home', component: HomeComponent, canActivate: [authenticationGuard] },
+    { path: 'home', component: HomeComponent }, //canActivate: [authenticationGuard] },
     { path: 'students', component: StudentsComponent, canActivate: [authenticationGuard]},
     { path: 'find-mentor', component: FindMentorComponent, canActivate: [authenticationGuard, authorizationGuard], data: { roles: [roles.director] } },
     { path: 'criterias-wizard', component: CriteriasWizardComponent, canActivate: [authenticationGuard, authorizationGuard], data: { roles: [roles.director] } },
