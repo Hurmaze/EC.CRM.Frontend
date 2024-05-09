@@ -1,0 +1,14 @@
+<!-- Generate an Angular form that will provide login page with email, password and login button. It should call login() method using LoginRequest model -->
+<form [formGroup]="loginRequestControlGroqup" (ngSubmit)="$event.preventDefault; login()">
+  <div>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" formControlName="email" required>
+    <div class="error">{{emailErrorMessage()}}</div>
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" formControlName="password" required>
+    <div class="error">{{passwordErrorMessage()}}</div>
+  </div>
+  <button type="submit" [disabled]="loginRequestControlGroqup.invalid">Login</button>
+</form>
