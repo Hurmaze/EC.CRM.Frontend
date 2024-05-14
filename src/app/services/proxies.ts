@@ -96,8 +96,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = AuthResponse.fromJS(resultData200);
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -268,15 +267,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Criteria.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Criteria[];
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -290,7 +281,7 @@ export class Client extends BaseApiClient {
     /**
      * @return Success
      */
-    mentors(): Observable<MentorResponse[]> {
+    mentorsAll(): Observable<MentorResponse[]> {
         let url_ = this.baseUrl + "/api/Mentors";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -306,11 +297,11 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("get", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processMentors(response_);
+            return this.processMentorsAll(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processMentors(response_ as any);
+                    return this.processMentorsAll(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MentorResponse[]>;
                 }
@@ -319,7 +310,7 @@ export class Client extends BaseApiClient {
         }));
     }
 
-    protected processMentors(response: HttpResponseBase): Observable<MentorResponse[]> {
+    protected processMentorsAll(response: HttpResponseBase): Observable<MentorResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -329,15 +320,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(MentorResponse.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse[];
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -351,8 +334,8 @@ export class Client extends BaseApiClient {
     /**
      * @return Success
      */
-    anonymousGET(userUid: string): Observable<MentorResponse> {
-        let url_ = this.baseUrl + "/{userUid}";
+    mentorsGET(userUid: string): Observable<MentorResponse> {
+        let url_ = this.baseUrl + "/api/Mentors/{userUid}";
         if (userUid === undefined || userUid === null)
             throw new Error("The parameter 'userUid' must be defined.");
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
@@ -370,11 +353,11 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("get", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processAnonymousGET(response_);
+            return this.processMentorsGET(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousGET(response_ as any);
+                    return this.processMentorsGET(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MentorResponse>;
                 }
@@ -383,7 +366,7 @@ export class Client extends BaseApiClient {
         }));
     }
 
-    protected processAnonymousGET(response: HttpResponseBase): Observable<MentorResponse> {
+    protected processMentorsGET(response: HttpResponseBase): Observable<MentorResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -393,8 +376,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MentorResponse.fromJS(resultData200);
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -408,8 +390,8 @@ export class Client extends BaseApiClient {
     /**
      * @return Success
      */
-    anonymousPOST(userUid: string): Observable<void> {
-        let url_ = this.baseUrl + "/{userUid}";
+    mentorsPOST(userUid: string): Observable<MentorResponse> {
+        let url_ = this.baseUrl + "/api/Mentors/{userUid}";
         if (userUid === undefined || userUid === null)
             throw new Error("The parameter 'userUid' must be defined.");
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
@@ -420,26 +402,27 @@ export class Client extends BaseApiClient {
             responseType: "blob",
             withCredentials: true,
             headers: new HttpHeaders({
+                "Accept": "text/plain"
             })
         };
 
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("post", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processAnonymousPOST(response_);
+            return this.processMentorsPOST(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousPOST(response_ as any);
+                    return this.processMentorsPOST(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<MentorResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<MentorResponse>;
         }));
     }
 
-    protected processAnonymousPOST(response: HttpResponseBase): Observable<void> {
+    protected processMentorsPOST(response: HttpResponseBase): Observable<MentorResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -448,7 +431,9 @@ export class Client extends BaseApiClient {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -462,8 +447,8 @@ export class Client extends BaseApiClient {
      * @param body (optional) 
      * @return Success
      */
-    anonymousPATCH(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
-        let url_ = this.baseUrl + "/{studentUid}";
+    students(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -485,11 +470,11 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("patch", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processAnonymousPATCH(response_);
+            return this.processStudents(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processAnonymousPATCH(response_ as any);
+                    return this.processStudents(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MatchingResponse>;
                 }
@@ -498,7 +483,7 @@ export class Client extends BaseApiClient {
         }));
     }
 
-    protected processAnonymousPATCH(response: HttpResponseBase): Observable<MatchingResponse> {
+    protected processStudents(response: HttpResponseBase): Observable<MatchingResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -508,8 +493,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MatchingResponse.fromJS(resultData200);
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MatchingResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -524,8 +508,8 @@ export class Client extends BaseApiClient {
      * @param body (optional) 
      * @return Success
      */
-    valuationsPOST(studentUid: string, body: { [key: string]: number; } | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/{studentUid}/valuations";
+    valuations(studentUid: string, body: MentorValuationRequest[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -546,11 +530,11 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("post", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processValuationsPOST(response_);
+            return this.processValuations(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processValuationsPOST(response_ as any);
+                    return this.processValuations(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -559,7 +543,7 @@ export class Client extends BaseApiClient {
         }));
     }
 
-    protected processValuationsPOST(response: HttpResponseBase): Observable<void> {
+    protected processValuations(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -581,8 +565,8 @@ export class Client extends BaseApiClient {
     /**
      * @return Success
      */
-    valuationsGET(studentUid: string): Observable<{ [key: string]: number; }> {
-        let url_ = this.baseUrl + "/{studentUid}/valuations";
+    valuationsAll(studentUid: string): Observable<MentorValuationResponse[]> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
@@ -600,20 +584,20 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("get", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processValuationsGET(response_);
+            return this.processValuationsAll(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processValuationsGET(response_ as any);
+                    return this.processValuationsAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<{ [key: string]: number; }>;
+                    return _observableThrow(e) as any as Observable<MentorValuationResponse[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<{ [key: string]: number; }>;
+                return _observableThrow(response_) as any as Observable<MentorValuationResponse[]>;
         }));
     }
 
-    protected processValuationsGET(response: HttpResponseBase): Observable<{ [key: string]: number; }> {
+    protected processValuationsAll(response: HttpResponseBase): Observable<MentorValuationResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -623,17 +607,118 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (resultData200) {
-                result200 = {} as any;
-                for (let key in resultData200) {
-                    if (resultData200.hasOwnProperty(key))
-                        (<any>result200)![key] = resultData200[key] !== undefined ? resultData200[key] : <any>null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorValuationResponse[];
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    applicationAll(): Observable<StudentResponse[]> {
+        let url_ = this.baseUrl + "/api/Students/application";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processApplicationAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processApplicationAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StudentResponse[]>;
                 }
-            }
-            else {
-                result200 = <any>null;
-            }
+            } else
+                return _observableThrow(response_) as any as Observable<StudentResponse[]>;
+        }));
+    }
+
+    protected processApplicationAll(response: HttpResponseBase): Observable<StudentResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse[];
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    application(body: StudentApplicationRequest | undefined): Observable<StudentResponse> {
+        let url_ = this.baseUrl + "/api/Students/application";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("post", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processApplication(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processApplication(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StudentResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StudentResponse>;
+        }));
+    }
+
+    protected processApplication(response: HttpResponseBase): Observable<StudentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -691,8 +776,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UserInfoResponse.fromJS(resultData200);
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -704,43 +788,38 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
      * @return Success
      */
-    application(body: StudentApplicationRequest | undefined): Observable<StudentResponse> {
-        let url_ = this.baseUrl + "/application";
+    me(): Observable<UserInfoResponse> {
+        let url_ = this.baseUrl + "/api/Users/me";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             withCredentials: true,
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
-            return this.http.request("post", url_, transformedOptions_);
+            return this.http.request("get", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processApplication(response_);
+            return this.processMe(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processApplication(response_ as any);
+                    return this.processMe(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<StudentResponse>;
+                    return _observableThrow(e) as any as Observable<UserInfoResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<StudentResponse>;
+                return _observableThrow(response_) as any as Observable<UserInfoResponse>;
         }));
     }
 
-    protected processApplication(response: HttpResponseBase): Observable<StudentResponse> {
+    protected processMe(response: HttpResponseBase): Observable<UserInfoResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -750,8 +829,7 @@ export class Client extends BaseApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = StudentResponse.fromJS(resultData200);
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -763,83 +841,16 @@ export class Client extends BaseApiClient {
     }
 }
 
-export class AuthResponse implements IAuthResponse {
-    token?: string | undefined;
-
-    constructor(data?: IAuthResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.token = _data["token"];
-        }
-    }
-
-    static fromJS(data: any): AuthResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new AuthResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["token"] = this.token;
-        return data;
-    }
-}
-
-export interface IAuthResponse {
+export interface AuthResponse {
     token?: string | undefined;
 }
 
-export class ChangePasswordRequest implements IChangePasswordRequest {
-    oldPassword?: string | undefined;
-    newPassword?: string | undefined;
-
-    constructor(data?: IChangePasswordRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.oldPassword = _data["oldPassword"];
-            this.newPassword = _data["newPassword"];
-        }
-    }
-
-    static fromJS(data: any): ChangePasswordRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangePasswordRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["oldPassword"] = this.oldPassword;
-        data["newPassword"] = this.newPassword;
-        return data;
-    }
-}
-
-export interface IChangePasswordRequest {
+export interface ChangePasswordRequest {
     oldPassword?: string | undefined;
     newPassword?: string | undefined;
 }
 
-export class CreateUserRequest implements ICreateUserRequest {
+export interface CreateUserRequest {
     name?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
@@ -847,505 +858,52 @@ export class CreateUserRequest implements ICreateUserRequest {
     nonProffesionalInterestsUids?: string[] | undefined;
     desiredStudyFieldUid?: string;
     locationUid?: string;
-    description?: string | undefined;
-    dateOfBirth?: Date;
-
-    constructor(data?: ICreateUserRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            if (Array.isArray(_data["skillsUids"])) {
-                this.skillsUids = [] as any;
-                for (let item of _data["skillsUids"])
-                    this.skillsUids!.push(item);
-            }
-            if (Array.isArray(_data["nonProffesionalInterestsUids"])) {
-                this.nonProffesionalInterestsUids = [] as any;
-                for (let item of _data["nonProffesionalInterestsUids"])
-                    this.nonProffesionalInterestsUids!.push(item);
-            }
-            this.desiredStudyFieldUid = _data["desiredStudyFieldUid"];
-            this.locationUid = _data["locationUid"];
-            this.description = _data["description"];
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): CreateUserRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateUserRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        if (Array.isArray(this.skillsUids)) {
-            data["skillsUids"] = [];
-            for (let item of this.skillsUids)
-                data["skillsUids"].push(item);
-        }
-        if (Array.isArray(this.nonProffesionalInterestsUids)) {
-            data["nonProffesionalInterestsUids"] = [];
-            for (let item of this.nonProffesionalInterestsUids)
-                data["nonProffesionalInterestsUids"].push(item);
-        }
-        data["desiredStudyFieldUid"] = this.desiredStudyFieldUid;
-        data["locationUid"] = this.locationUid;
-        data["description"] = this.description;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICreateUserRequest {
-    name?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    skillsUids?: string[] | undefined;
-    nonProffesionalInterestsUids?: string[] | undefined;
-    desiredStudyFieldUid?: string;
-    locationUid?: string;
+    password?: string | undefined;
     description?: string | undefined;
     dateOfBirth?: Date;
 }
 
-export class Credentials implements ICredentials {
-    userInfoUid?: string;
-    passwordHash?: string | undefined;
-    passwordSalt?: string | undefined;
-    user?: UserInfo;
-
-    constructor(data?: ICredentials) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userInfoUid = _data["userInfoUid"];
-            this.passwordHash = _data["passwordHash"];
-            this.passwordSalt = _data["passwordSalt"];
-            this.user = _data["user"] ? UserInfo.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Credentials {
-        data = typeof data === 'object' ? data : {};
-        let result = new Credentials();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userInfoUid"] = this.userInfoUid;
-        data["passwordHash"] = this.passwordHash;
-        data["passwordSalt"] = this.passwordSalt;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICredentials {
-    userInfoUid?: string;
-    passwordHash?: string | undefined;
-    passwordSalt?: string | undefined;
-    user?: UserInfo;
-}
-
-export class Criteria implements ICriteria {
+export interface Criteria {
     name?: string | undefined;
-    weight?: number;
-    isBeneficial?: boolean;
-
-    constructor(data?: ICriteria) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.weight = _data["weight"];
-            this.isBeneficial = _data["isBeneficial"];
-        }
-    }
-
-    static fromJS(data: any): Criteria {
-        data = typeof data === 'object' ? data : {};
-        let result = new Criteria();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["weight"] = this.weight;
-        data["isBeneficial"] = this.isBeneficial;
-        return data;
-    }
-}
-
-export interface ICriteria {
-    name?: string | undefined;
-    weight?: number;
+    weight?: number | undefined;
     isBeneficial?: boolean;
 }
 
-export class Job implements IJob {
+export interface JobResponse {
     uid?: string;
     companyName?: string | undefined;
     positionName?: string | undefined;
     salary?: number;
     startTime?: Date;
     endTime?: Date | undefined;
-    userInfo?: UserInfo;
-
-    constructor(data?: IJob) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.companyName = _data["companyName"];
-            this.positionName = _data["positionName"];
-            this.salary = _data["salary"];
-            this.startTime = _data["startTime"] ? new Date(_data["startTime"].toString()) : <any>undefined;
-            this.endTime = _data["endTime"] ? new Date(_data["endTime"].toString()) : <any>undefined;
-            this.userInfo = _data["userInfo"] ? UserInfo.fromJS(_data["userInfo"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Job {
-        data = typeof data === 'object' ? data : {};
-        let result = new Job();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["companyName"] = this.companyName;
-        data["positionName"] = this.positionName;
-        data["salary"] = this.salary;
-        data["startTime"] = this.startTime ? this.startTime.toISOString() : <any>undefined;
-        data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>undefined;
-        data["userInfo"] = this.userInfo ? this.userInfo.toJSON() : <any>undefined;
-        return data;
-    }
 }
 
-export interface IJob {
-    uid?: string;
-    companyName?: string | undefined;
-    positionName?: string | undefined;
-    salary?: number;
-    startTime?: Date;
-    endTime?: Date | undefined;
-    userInfo?: UserInfo;
-}
-
-export class Location implements ILocation {
+export interface LocationResponse {
     uid?: string;
     address?: string | undefined;
     city?: string | undefined;
-    users?: UserInfo[] | undefined;
-
-    constructor(data?: ILocation) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.address = _data["address"];
-            this.city = _data["city"];
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(UserInfo.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Location {
-        data = typeof data === 'object' ? data : {};
-        let result = new Location();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["address"] = this.address;
-        data["city"] = this.city;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
 }
 
-export interface ILocation {
-    uid?: string;
-    address?: string | undefined;
-    city?: string | undefined;
-    users?: UserInfo[] | undefined;
-}
-
-export class LoginRequest implements ILoginRequest {
-    email?: string | undefined;
-    password?: string | undefined;
-
-    constructor(data?: ILoginRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.email = _data["email"];
-            this.password = _data["password"];
-        }
-    }
-
-    static fromJS(data: any): LoginRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new LoginRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
-        data["password"] = this.password;
-        return data;
-    }
-}
-
-export interface ILoginRequest {
+export interface LoginRequest {
     email?: string | undefined;
     password?: string | undefined;
 }
 
-export class MatchingResponse implements IMatchingResponse {
-    menthorUid?: string;
-    matchingCoefficient?: number;
-    otherResults?: { [key: string]: number; } | undefined;
-
-    constructor(data?: IMatchingResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.menthorUid = _data["menthorUid"];
-            this.matchingCoefficient = _data["matchingCoefficient"];
-            if (_data["otherResults"]) {
-                this.otherResults = {} as any;
-                for (let key in _data["otherResults"]) {
-                    if (_data["otherResults"].hasOwnProperty(key))
-                        (<any>this.otherResults)![key] = _data["otherResults"][key];
-                }
-            }
-        }
-    }
-
-    static fromJS(data: any): MatchingResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new MatchingResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["menthorUid"] = this.menthorUid;
-        data["matchingCoefficient"] = this.matchingCoefficient;
-        if (this.otherResults) {
-            data["otherResults"] = {};
-            for (let key in this.otherResults) {
-                if (this.otherResults.hasOwnProperty(key))
-                    (<any>data["otherResults"])[key] = (<any>this.otherResults)[key];
-            }
-        }
-        return data;
-    }
-}
-
-export interface IMatchingResponse {
+export interface MatchingResponse {
     menthorUid?: string;
     matchingCoefficient?: number;
     otherResults?: { [key: string]: number; } | undefined;
 }
 
-export class Mentor implements IMentor {
-    id?: number;
-    userInfoUid?: string;
-    userInfo?: UserInfo;
-    students?: Student[] | undefined;
-    startDate?: Date;
-
-    constructor(data?: IMentor) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userInfoUid = _data["userInfoUid"];
-            this.userInfo = _data["userInfo"] ? UserInfo.fromJS(_data["userInfo"]) : <any>undefined;
-            if (Array.isArray(_data["students"])) {
-                this.students = [] as any;
-                for (let item of _data["students"])
-                    this.students!.push(Student.fromJS(item));
-            }
-            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Mentor {
-        data = typeof data === 'object' ? data : {};
-        let result = new Mentor();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userInfoUid"] = this.userInfoUid;
-        data["userInfo"] = this.userInfo ? this.userInfo.toJSON() : <any>undefined;
-        if (Array.isArray(this.students)) {
-            data["students"] = [];
-            for (let item of this.students)
-                data["students"].push(item.toJSON());
-        }
-        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IMentor {
-    id?: number;
-    userInfoUid?: string;
-    userInfo?: UserInfo;
-    students?: Student[] | undefined;
-    startDate?: Date;
-}
-
-export class MentorResponse implements IMentorResponse {
+export interface MentorResponse {
     uid?: string;
     name?: string | undefined;
-    description?: string | undefined;
-    phoneNumber?: string | undefined;
-    email?: string | undefined;
-    currentSalary?: number | undefined;
-    joinDate?: Date;
-    dateOfBirth?: Date;
-    paidToClub?: number | undefined;
-
-    constructor(data?: IMentorResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.email = _data["email"];
-            this.currentSalary = _data["currentSalary"];
-            this.joinDate = _data["joinDate"] ? new Date(_data["joinDate"].toString()) : <any>undefined;
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-            this.paidToClub = _data["paidToClub"];
-        }
-    }
-
-    static fromJS(data: any): MentorResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new MentorResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["phoneNumber"] = this.phoneNumber;
-        data["email"] = this.email;
-        data["currentSalary"] = this.currentSalary;
-        data["joinDate"] = this.joinDate ? this.joinDate.toISOString() : <any>undefined;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        data["paidToClub"] = this.paidToClub;
-        return data;
-    }
-}
-
-export interface IMentorResponse {
-    uid?: string;
-    name?: string | undefined;
+    role?: RoleResponse;
+    jobs?: JobResponse[] | undefined;
+    skills?: SkillResponse[] | undefined;
+    nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
+    locations?: LocationResponse[] | undefined;
+    studyFields?: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;
@@ -1355,341 +913,39 @@ export interface IMentorResponse {
     paidToClub?: number | undefined;
 }
 
-export class NonProfessionalInterest implements INonProfessionalInterest {
-    uid?: string;
-    name?: string | undefined;
-    users?: UserInfo[] | undefined;
-
-    constructor(data?: INonProfessionalInterest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(UserInfo.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): NonProfessionalInterest {
-        data = typeof data === 'object' ? data : {};
-        let result = new NonProfessionalInterest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
+export interface MentorValuationRequest {
+    mentorUid?: string;
+    valuation?: number;
 }
 
-export interface INonProfessionalInterest {
-    uid?: string;
-    name?: string | undefined;
-    users?: UserInfo[] | undefined;
+export interface MentorValuationResponse {
+    mentorUid?: string;
+    mentorName?: string | undefined;
+    valuation?: number | undefined;
 }
 
-export class Role implements IRole {
+export interface NonProfessionalInterestResponse {
     uid?: string;
     name?: string | undefined;
-    userInfos?: UserInfo[] | undefined;
-
-    constructor(data?: IRole) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["userInfos"])) {
-                this.userInfos = [] as any;
-                for (let item of _data["userInfos"])
-                    this.userInfos!.push(UserInfo.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Role {
-        data = typeof data === 'object' ? data : {};
-        let result = new Role();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        if (Array.isArray(this.userInfos)) {
-            data["userInfos"] = [];
-            for (let item of this.userInfos)
-                data["userInfos"].push(item.toJSON());
-        }
-        return data;
-    }
 }
 
-export interface IRole {
+export interface RoleResponse {
     uid?: string;
     name?: string | undefined;
-    userInfos?: UserInfo[] | undefined;
 }
 
-export class Skill implements ISkill {
+export interface SkillResponse {
     uid?: string;
     name?: string | undefined;
-    users?: UserInfo[] | undefined;
-
-    constructor(data?: ISkill) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(UserInfo.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Skill {
-        data = typeof data === 'object' ? data : {};
-        let result = new Skill();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
 }
 
-export interface ISkill {
-    uid?: string;
-    name?: string | undefined;
-    users?: UserInfo[] | undefined;
-}
-
-export class State implements IState {
+export interface StateResponse {
     uid?: string;
     name?: string | undefined;
     orderingId?: number;
-    students?: Student[] | undefined;
-
-    constructor(data?: IState) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            this.orderingId = _data["orderingId"];
-            if (Array.isArray(_data["students"])) {
-                this.students = [] as any;
-                for (let item of _data["students"])
-                    this.students!.push(Student.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): State {
-        data = typeof data === 'object' ? data : {};
-        let result = new State();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        data["orderingId"] = this.orderingId;
-        if (Array.isArray(this.students)) {
-            data["students"] = [];
-            for (let item of this.students)
-                data["students"].push(item.toJSON());
-        }
-        return data;
-    }
 }
 
-export interface IState {
-    uid?: string;
-    name?: string | undefined;
-    orderingId?: number;
-    students?: Student[] | undefined;
-}
-
-export class Student implements IStudent {
-    id?: number;
-    userInfoUid?: string;
-    userInfo?: UserInfo;
-    mentor?: Mentor;
-    mentorUid?: string;
-    state?: State;
-
-    constructor(data?: IStudent) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userInfoUid = _data["userInfoUid"];
-            this.userInfo = _data["userInfo"] ? UserInfo.fromJS(_data["userInfo"]) : <any>undefined;
-            this.mentor = _data["mentor"] ? Mentor.fromJS(_data["mentor"]) : <any>undefined;
-            this.mentorUid = _data["mentorUid"];
-            this.state = _data["state"] ? State.fromJS(_data["state"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Student {
-        data = typeof data === 'object' ? data : {};
-        let result = new Student();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userInfoUid"] = this.userInfoUid;
-        data["userInfo"] = this.userInfo ? this.userInfo.toJSON() : <any>undefined;
-        data["mentor"] = this.mentor ? this.mentor.toJSON() : <any>undefined;
-        data["mentorUid"] = this.mentorUid;
-        data["state"] = this.state ? this.state.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IStudent {
-    id?: number;
-    userInfoUid?: string;
-    userInfo?: UserInfo;
-    mentor?: Mentor;
-    mentorUid?: string;
-    state?: State;
-}
-
-export class StudentApplicationRequest implements IStudentApplicationRequest {
-    name?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    skillsUids?: string[] | undefined;
-    nonProffesionalInterestsUids?: string[] | undefined;
-    desiredStudyFieldUid?: string;
-    locationUid?: string;
-
-    constructor(data?: IStudentApplicationRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            if (Array.isArray(_data["skillsUids"])) {
-                this.skillsUids = [] as any;
-                for (let item of _data["skillsUids"])
-                    this.skillsUids!.push(item);
-            }
-            if (Array.isArray(_data["nonProffesionalInterestsUids"])) {
-                this.nonProffesionalInterestsUids = [] as any;
-                for (let item of _data["nonProffesionalInterestsUids"])
-                    this.nonProffesionalInterestsUids!.push(item);
-            }
-            this.desiredStudyFieldUid = _data["desiredStudyFieldUid"];
-            this.locationUid = _data["locationUid"];
-        }
-    }
-
-    static fromJS(data: any): StudentApplicationRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new StudentApplicationRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        if (Array.isArray(this.skillsUids)) {
-            data["skillsUids"] = [];
-            for (let item of this.skillsUids)
-                data["skillsUids"].push(item);
-        }
-        if (Array.isArray(this.nonProffesionalInterestsUids)) {
-            data["nonProffesionalInterestsUids"] = [];
-            for (let item of this.nonProffesionalInterestsUids)
-                data["nonProffesionalInterestsUids"].push(item);
-        }
-        data["desiredStudyFieldUid"] = this.desiredStudyFieldUid;
-        data["locationUid"] = this.locationUid;
-        return data;
-    }
-}
-
-export interface IStudentApplicationRequest {
+export interface StudentApplicationRequest {
     name?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
@@ -1699,9 +955,15 @@ export interface IStudentApplicationRequest {
     locationUid?: string;
 }
 
-export class StudentResponse implements IStudentResponse {
+export interface StudentResponse {
     uid?: string;
     name?: string | undefined;
+    role?: RoleResponse;
+    jobs?: JobResponse[] | undefined;
+    skills?: SkillResponse[] | undefined;
+    nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
+    locations?: LocationResponse[] | undefined;
+    studyFields?: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;
@@ -1709,323 +971,23 @@ export class StudentResponse implements IStudentResponse {
     joinDate?: Date;
     dateOfBirth?: Date;
     paidToClub?: number | undefined;
-    state?: State;
-
-    constructor(data?: IStudentResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.email = _data["email"];
-            this.currentSalary = _data["currentSalary"];
-            this.joinDate = _data["joinDate"] ? new Date(_data["joinDate"].toString()) : <any>undefined;
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-            this.paidToClub = _data["paidToClub"];
-            this.state = _data["state"] ? State.fromJS(_data["state"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): StudentResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new StudentResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["phoneNumber"] = this.phoneNumber;
-        data["email"] = this.email;
-        data["currentSalary"] = this.currentSalary;
-        data["joinDate"] = this.joinDate ? this.joinDate.toISOString() : <any>undefined;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        data["paidToClub"] = this.paidToClub;
-        data["state"] = this.state ? this.state.toJSON() : <any>undefined;
-        return data;
-    }
+    state?: StateResponse;
 }
 
-export interface IStudentResponse {
+export interface StudyFieldResponse {
     uid?: string;
     name?: string | undefined;
-    description?: string | undefined;
-    phoneNumber?: string | undefined;
-    email?: string | undefined;
-    currentSalary?: number | undefined;
-    joinDate?: Date;
-    dateOfBirth?: Date;
-    paidToClub?: number | undefined;
-    state?: State;
 }
 
-export class StudyField implements IStudyField {
+export interface UserInfoResponse {
     uid?: string;
     name?: string | undefined;
-    users?: UserInfo[] | undefined;
-
-    constructor(data?: IStudyField) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["users"])) {
-                this.users = [] as any;
-                for (let item of _data["users"])
-                    this.users!.push(UserInfo.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): StudyField {
-        data = typeof data === 'object' ? data : {};
-        let result = new StudyField();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        if (Array.isArray(this.users)) {
-            data["users"] = [];
-            for (let item of this.users)
-                data["users"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IStudyField {
-    uid?: string;
-    name?: string | undefined;
-    users?: UserInfo[] | undefined;
-}
-
-export class UserInfo implements IUserInfo {
-    uid?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    phoneNumber?: string | undefined;
-    email?: string | undefined;
-    curentSalary?: number | undefined;
-    dateOfBirth?: Date;
-    paid?: number;
-    roleUid?: string;
-    role?: Role;
-    jobs?: Job[] | undefined;
-    skills?: Skill[] | undefined;
-    nonProfessionalInterests?: NonProfessionalInterest[] | undefined;
-    locations?: Location[] | undefined;
-    studyFields?: StudyField[] | undefined;
-    mentorProperties?: Mentor;
-    studentProperties?: Student;
-    credentials?: Credentials;
-
-    constructor(data?: IUserInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.email = _data["email"];
-            this.curentSalary = _data["curentSalary"];
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-            this.paid = _data["paid"];
-            this.roleUid = _data["roleUid"];
-            this.role = _data["role"] ? Role.fromJS(_data["role"]) : <any>undefined;
-            if (Array.isArray(_data["jobs"])) {
-                this.jobs = [] as any;
-                for (let item of _data["jobs"])
-                    this.jobs!.push(Job.fromJS(item));
-            }
-            if (Array.isArray(_data["skills"])) {
-                this.skills = [] as any;
-                for (let item of _data["skills"])
-                    this.skills!.push(Skill.fromJS(item));
-            }
-            if (Array.isArray(_data["nonProfessionalInterests"])) {
-                this.nonProfessionalInterests = [] as any;
-                for (let item of _data["nonProfessionalInterests"])
-                    this.nonProfessionalInterests!.push(NonProfessionalInterest.fromJS(item));
-            }
-            if (Array.isArray(_data["locations"])) {
-                this.locations = [] as any;
-                for (let item of _data["locations"])
-                    this.locations!.push(Location.fromJS(item));
-            }
-            if (Array.isArray(_data["studyFields"])) {
-                this.studyFields = [] as any;
-                for (let item of _data["studyFields"])
-                    this.studyFields!.push(StudyField.fromJS(item));
-            }
-            this.mentorProperties = _data["mentorProperties"] ? Mentor.fromJS(_data["mentorProperties"]) : <any>undefined;
-            this.studentProperties = _data["studentProperties"] ? Student.fromJS(_data["studentProperties"]) : <any>undefined;
-            this.credentials = _data["credentials"] ? Credentials.fromJS(_data["credentials"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): UserInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["phoneNumber"] = this.phoneNumber;
-        data["email"] = this.email;
-        data["curentSalary"] = this.curentSalary;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        data["paid"] = this.paid;
-        data["roleUid"] = this.roleUid;
-        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
-        if (Array.isArray(this.jobs)) {
-            data["jobs"] = [];
-            for (let item of this.jobs)
-                data["jobs"].push(item.toJSON());
-        }
-        if (Array.isArray(this.skills)) {
-            data["skills"] = [];
-            for (let item of this.skills)
-                data["skills"].push(item.toJSON());
-        }
-        if (Array.isArray(this.nonProfessionalInterests)) {
-            data["nonProfessionalInterests"] = [];
-            for (let item of this.nonProfessionalInterests)
-                data["nonProfessionalInterests"].push(item.toJSON());
-        }
-        if (Array.isArray(this.locations)) {
-            data["locations"] = [];
-            for (let item of this.locations)
-                data["locations"].push(item.toJSON());
-        }
-        if (Array.isArray(this.studyFields)) {
-            data["studyFields"] = [];
-            for (let item of this.studyFields)
-                data["studyFields"].push(item.toJSON());
-        }
-        data["mentorProperties"] = this.mentorProperties ? this.mentorProperties.toJSON() : <any>undefined;
-        data["studentProperties"] = this.studentProperties ? this.studentProperties.toJSON() : <any>undefined;
-        data["credentials"] = this.credentials ? this.credentials.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IUserInfo {
-    uid?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    phoneNumber?: string | undefined;
-    email?: string | undefined;
-    curentSalary?: number | undefined;
-    dateOfBirth?: Date;
-    paid?: number;
-    roleUid?: string;
-    role?: Role;
-    jobs?: Job[] | undefined;
-    skills?: Skill[] | undefined;
-    nonProfessionalInterests?: NonProfessionalInterest[] | undefined;
-    locations?: Location[] | undefined;
-    studyFields?: StudyField[] | undefined;
-    mentorProperties?: Mentor;
-    studentProperties?: Student;
-    credentials?: Credentials;
-}
-
-export class UserInfoResponse implements IUserInfoResponse {
-    uid?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    phoneNumber?: string | undefined;
-    email?: string | undefined;
-    currentSalary?: number | undefined;
-    joinDate?: Date;
-    dateOfBirth?: Date;
-    paidToClub?: number | undefined;
-
-    constructor(data?: IUserInfoResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.uid = _data["uid"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.email = _data["email"];
-            this.currentSalary = _data["currentSalary"];
-            this.joinDate = _data["joinDate"] ? new Date(_data["joinDate"].toString()) : <any>undefined;
-            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
-            this.paidToClub = _data["paidToClub"];
-        }
-    }
-
-    static fromJS(data: any): UserInfoResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserInfoResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["uid"] = this.uid;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["phoneNumber"] = this.phoneNumber;
-        data["email"] = this.email;
-        data["currentSalary"] = this.currentSalary;
-        data["joinDate"] = this.joinDate ? this.joinDate.toISOString() : <any>undefined;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
-        data["paidToClub"] = this.paidToClub;
-        return data;
-    }
-}
-
-export interface IUserInfoResponse {
-    uid?: string;
-    name?: string | undefined;
+    role?: RoleResponse;
+    jobs?: JobResponse[] | undefined;
+    skills?: SkillResponse[] | undefined;
+    nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
+    locations?: LocationResponse[] | undefined;
+    studyFields?: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;
