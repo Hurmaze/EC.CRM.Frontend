@@ -9,8 +9,8 @@ export class BaseApiClient {
 
   protected transformOptions(options: any): Promise<any> {
     if (this.authToken === '' || this.authToken === null || this.authToken === undefined){
-        console.log('No token was set.')
-        return Promise.resolve(options);
+      console.log('No token was set.')
+      return Promise.resolve(options);
     }
     
     options.headers = options.headers.append('authorization', `Bearer ${this.authToken}`);
