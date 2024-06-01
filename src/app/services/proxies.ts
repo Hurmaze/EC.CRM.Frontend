@@ -16,23 +16,23 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export class BaseApiClient {
-  authToken = '';
-  protected constructor() {
-  }
-  
-  setAuthToken(token: string) {
-      this.authToken = token;
-  }
-
-  protected transformOptions(options: any): Promise<any> {
-    if (this.authToken === '' || this.authToken === null || this.authToken === undefined){
-      console.log('No token was set.')
-      return Promise.resolve(options);
+    authToken = '';
+    protected constructor() {
     }
-    
-    options.headers = options.headers.append('authorization', `Bearer ${this.authToken}`);
-    return Promise.resolve(options);
-  }
+
+    setAuthToken(token: string) {
+        this.authToken = token;
+    }
+
+    protected transformOptions(options: any): Promise<any> {
+        if (this.authToken === '' || this.authToken === null || this.authToken === undefined) {
+            console.log('No token was set.')
+            return Promise.resolve(options);
+        }
+
+        options.headers = options.headers.append('authorization', `Bearer ${this.authToken}`);
+        return Promise.resolve(options);
+    }
 }
 
 @Injectable({
@@ -50,8 +50,8 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @param body (optional)
+     * @return OK
      */
     login(body: LoginRequest | undefined): Observable<AuthResponse> {
         let url_ = this.baseUrl + "/api/Auth/login";
@@ -108,8 +108,8 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @param body (optional)
+     * @return OK
      */
     changePassword(body: ChangePasswordRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/Auth/change-password";
@@ -163,9 +163,9 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param criteriasCount (optional) 
-     * @param criteriasCsv (optional) 
-     * @return Success
+     * @param criteriasCount (optional)
+     * @param criteriasCsv (optional)
+     * @return OK
      */
     registerCriterias(criteriasCount: number | undefined, criteriasCsv: FileParameter | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/Criterias/register-criterias?";
@@ -226,7 +226,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     criterias(): Observable<Criteria[]> {
         let url_ = this.baseUrl + "/api/Criterias";
@@ -279,7 +279,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     mentorsAll(): Observable<MentorResponse[]> {
         let url_ = this.baseUrl + "/api/Mentors";
@@ -332,7 +332,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     mentorsGET(userUid: string): Observable<MentorResponse> {
         let url_ = this.baseUrl + "/api/Mentors/{userUid}";
@@ -388,9 +388,9 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
-    mentorsPOST(userUid: string): Observable<MentorResponse> {
+    mentorsPOST(userUid: string): Observable<void> {
         let url_ = this.baseUrl + "/api/Mentors/{userUid}";
         if (userUid === undefined || userUid === null)
             throw new Error("The parameter 'userUid' must be defined.");
@@ -402,7 +402,6 @@ export class Client extends BaseApiClient {
             responseType: "blob",
             withCredentials: true,
             headers: new HttpHeaders({
-                "Accept": "text/plain"
             })
         };
 
@@ -415,14 +414,14 @@ export class Client extends BaseApiClient {
                 try {
                     return this.processMentorsPOST(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MentorResponse>;
+                    return _observableThrow(e) as any as Observable<void>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MentorResponse>;
+                return _observableThrow(response_) as any as Observable<void>;
         }));
     }
 
-    protected processMentorsPOST(response: HttpResponseBase): Observable<MentorResponse> {
+    protected processMentorsPOST(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -431,9 +430,7 @@ export class Client extends BaseApiClient {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
-            return _observableOf(result200);
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -444,10 +441,10 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @param body (optional)
+     * @return OK
      */
-    students(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
+    studentsPATCH(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
         let url_ = this.baseUrl + "/api/Students/{studentUid}";
         if (studentUid === undefined || studentUid === null)
             throw new Error("The parameter 'studentUid' must be defined.");
@@ -470,11 +467,11 @@ export class Client extends BaseApiClient {
         return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
             return this.http.request("patch", url_, transformedOptions_);
         })).pipe(_observableMergeMap((response_: any) => {
-            return this.processStudents(response_);
+            return this.processStudentsPATCH(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processStudents(response_ as any);
+                    return this.processStudentsPATCH(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MatchingResponse>;
                 }
@@ -483,7 +480,7 @@ export class Client extends BaseApiClient {
         }));
     }
 
-    protected processStudents(response: HttpResponseBase): Observable<MatchingResponse> {
+    protected processStudentsPATCH(response: HttpResponseBase): Observable<MatchingResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -505,8 +502,122 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @return OK
+     */
+    studentsGET(studentUid: string): Observable<StudentResponse> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}";
+        if (studentUid === undefined || studentUid === null)
+            throw new Error("The parameter 'studentUid' must be defined.");
+        url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("get", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processStudentsGET(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processStudentsGET(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StudentResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StudentResponse>;
+        }));
+    }
+
+    protected processStudentsGET(response: HttpResponseBase): Observable<StudentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional)
+     * @return OK
+     */
+    studentsPUT(studentUid: string, body: UpdateUserRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Students/{studentUid}";
+        if (studentUid === undefined || studentUid === null)
+            throw new Error("The parameter 'studentUid' must be defined.");
+        url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
+            return this.http.request("put", url_, transformedOptions_);
+        })).pipe(_observableMergeMap((response_: any) => {
+            return this.processStudentsPUT(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processStudentsPUT(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processStudentsPUT(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional)
+     * @return OK
      */
     valuations(studentUid: string, body: MentorValuationRequest[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
@@ -563,7 +674,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     valuationsAll(studentUid: string): Observable<MentorValuationResponse[]> {
         let url_ = this.baseUrl + "/api/Students/{studentUid}/valuations";
@@ -619,7 +730,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     applicationAll(): Observable<StudentResponse[]> {
         let url_ = this.baseUrl + "/api/Students/application";
@@ -672,8 +783,8 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @param body (optional)
+     * @return OK
      */
     application(body: StudentApplicationRequest | undefined): Observable<StudentResponse> {
         let url_ = this.baseUrl + "/api/Students/application";
@@ -715,7 +826,7 @@ export class Client extends BaseApiClient {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
+        if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
@@ -730,8 +841,8 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * @param body (optional)
+     * @return OK
      */
     users(body: CreateUserRequest | undefined): Observable<UserInfoResponse> {
         let url_ = this.baseUrl + "/api/Users";
@@ -773,7 +884,7 @@ export class Client extends BaseApiClient {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
+        if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
@@ -788,7 +899,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     me(): Observable<UserInfoResponse> {
         let url_ = this.baseUrl + "/api/Users/me";
@@ -841,7 +952,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     skills(): Observable<SkillResponse[]> {
         let url_ = this.baseUrl + "/api/Users/skills";
@@ -894,7 +1005,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     locations(): Observable<LocationResponse[]> {
         let url_ = this.baseUrl + "/api/Users/locations";
@@ -947,7 +1058,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     nonProfessionalInterests(): Observable<NonProfessionalInterestResponse[]> {
         let url_ = this.baseUrl + "/api/Users/non-professional-interests";
@@ -1000,7 +1111,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     studyFields(): Observable<StudyFieldResponse[]> {
         let url_ = this.baseUrl + "/api/Users/study-fields";
@@ -1054,7 +1165,7 @@ export class Client extends BaseApiClient {
 }
 
 export interface AuthResponse {
-    token?: string | undefined;
+    token: string | undefined;
 }
 
 export interface ChangePasswordRequest {
@@ -1076,24 +1187,24 @@ export interface CreateUserRequest {
 }
 
 export interface Criteria {
-    name?: string | undefined;
+    name: string | undefined;
     weight?: number | undefined;
-    isBeneficial?: boolean;
+    isBeneficial: boolean;
 }
 
 export interface JobResponse {
     uid?: string;
-    companyName?: string | undefined;
-    positionName?: string | undefined;
-    salary?: number;
-    startTime?: Date;
+    companyName: string | undefined;
+    positionName: string | undefined;
+    salary: number;
+    startTime: Date;
     endTime?: Date | undefined;
 }
 
 export interface LocationResponse {
     uid?: string;
     address?: string | undefined;
-    city?: string | undefined;
+    city: string | undefined;
 }
 
 export interface LoginRequest {
@@ -1102,7 +1213,8 @@ export interface LoginRequest {
 }
 
 export interface MatchingResponse {
-    menthorUid?: string;
+    mentorUid?: string;
+    mentorName?: string | undefined;
     matchingCoefficient?: number;
     otherResults?: { [key: string]: number; } | undefined;
 }
@@ -1112,10 +1224,10 @@ export interface MentorResponse {
     name?: string | undefined;
     role?: RoleResponse;
     jobs?: JobResponse[] | undefined;
-    skills?: SkillResponse[] | undefined;
+    skills: SkillResponse[] | undefined;
     nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
-    locations?: LocationResponse[] | undefined;
-    studyFields?: StudyFieldResponse[] | undefined;
+    locations: LocationResponse[] | undefined;
+    studyFields: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;
@@ -1138,22 +1250,22 @@ export interface MentorValuationResponse {
 
 export interface NonProfessionalInterestResponse {
     uid?: string;
-    name?: string | undefined;
+    name: string | undefined;
 }
 
 export interface RoleResponse {
     uid?: string;
-    name?: string | undefined;
+    name: string | undefined;
 }
 
 export interface SkillResponse {
     uid?: string;
-    name?: string | undefined;
+    name: string | undefined;
 }
 
 export interface StateResponse {
     uid?: string;
-    name?: string | undefined;
+    name: string | undefined;
     orderingId?: number;
 }
 
@@ -1172,10 +1284,10 @@ export interface StudentResponse {
     name?: string | undefined;
     role?: RoleResponse;
     jobs?: JobResponse[] | undefined;
-    skills?: SkillResponse[] | undefined;
+    skills: SkillResponse[] | undefined;
     nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
-    locations?: LocationResponse[] | undefined;
-    studyFields?: StudyFieldResponse[] | undefined;
+    locations: LocationResponse[] | undefined;
+    studyFields: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;
@@ -1183,12 +1295,23 @@ export interface StudentResponse {
     joinDate?: Date;
     dateOfBirth?: Date;
     paidToClub?: number | undefined;
-    state?: StateResponse;
+    state: StateResponse;
+    mentorValuations?: MentorValuationResponse[] | undefined;
 }
 
 export interface StudyFieldResponse {
     uid?: string;
+    name: string | undefined;
+}
+
+export interface UpdateUserRequest {
     name?: string | undefined;
+    phoneNumber?: string | undefined;
+    state?: StateResponse;
+    skillsUids?: string[] | undefined;
+    nonProffesionalInterestsUids?: string[] | undefined;
+    locationUid?: string;
+    description?: string | undefined;
 }
 
 export interface UserInfoResponse {
@@ -1196,10 +1319,10 @@ export interface UserInfoResponse {
     name?: string | undefined;
     role?: RoleResponse;
     jobs?: JobResponse[] | undefined;
-    skills?: SkillResponse[] | undefined;
+    skills: SkillResponse[] | undefined;
     nonProfessionalInterests?: NonProfessionalInterestResponse[] | undefined;
-    locations?: LocationResponse[] | undefined;
-    studyFields?: StudyFieldResponse[] | undefined;
+    locations: LocationResponse[] | undefined;
+    studyFields: StudyFieldResponse[] | undefined;
     description?: string | undefined;
     phoneNumber?: string | undefined;
     email?: string | undefined;

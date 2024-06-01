@@ -1,17 +1,29 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { HeaderComponent } from "./components/header/header.component";
-import { FooterComponent } from "./components/footer/footer.component";
+
+import { HeaderComponent } from "./containers/header/header.component";
 
 @Component({
-    selector: 'app-root',
-    standalone: true,
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.css',
-    imports: [RouterOutlet, CommonModule, HeaderComponent, FooterComponent]
+  selector: 'app-root',
+  standalone: true,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+  imports: [RouterOutlet, CommonModule, HeaderComponent, RouterModule]
 })
-export class AppComponent {
-  title = 'EC.CRM.Frontend';
+export class AppComponent implements OnInit {
+  isBackgroundWhite: boolean = false;
+
+  constructor(private router: Router) {}
+  
+  ngOnInit() {
+    this.router.events.subscribe(() => {
+      if (this.router.url.startsWith('/students')) {
+        this.isBackgroundWhite = true;
+      } else if (this.router.url.startsWith('/find-mentor')) {
+        this.isBackgroundWhite = true;
+      }
+    });
+  }
 }
+

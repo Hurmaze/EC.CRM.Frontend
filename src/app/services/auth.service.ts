@@ -1,47 +1,63 @@
 import { Injectable } from '@angular/core';
-import { Client, LoginRequest } from './proxies';
-import { UserModel } from '../models/UserModel';
+import { BehaviorSubject } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
-export const TOKEN_NAME = 'jwtToken';
+import { Client, LoginRequest } from './proxies';
+import { TokenUser } from "../types/user";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  user!: UserModel;
+  private LOCAL_STORAGE_TOKEN = 'token';
 
-  constructor(private client: Client) { }
+  private userSubject = new BehaviorSubject<TokenUser | null>(this.getUser());
+  user = this.userSubject.asObservable();
 
-  login(loginRequest: LoginRequest) : void {
-    this.client.login(loginRequest).subscribe((jwtDto) => {
-      localStorage.setItem(TOKEN_NAME, jwtDto.token? jwtDto.token : '');
-      this.user = getUser(jwtDto.token);
-      this.user.token = jwtDto.token!;
+  constructor(private client: Client) {}
 
-      this.client.setAuthToken(jwtDto.token!);
+  private getUser(): TokenUser | null {
+    const token = localStorage.getItem(this.LOCAL_STORAGE_TOKEN);
+
+    if (!token) return null;
+
+    const decodedToken = jwtDecode(token) as Record<string, string>;
+
+    return {
+      email: decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+      role: decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+      locationUids: decodedToken['LocationUids'].split(','),
+      studyFieldUids: decodedToken['StudyFieldUids'].split(','),
+      uid: decodedToken['uid'],
+    } as TokenUser;
+  }
+
+  updateUser(): void {
+    this.userSubject.next(this.getUser());
+  }
+
+  login(loginRequest: LoginRequest): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.login(loginRequest).subscribe(
+      (jwtDTO) => {
+        const { token } = jwtDTO;
+
+        this.client.setAuthToken(jwtDTO.token!);
+        localStorage.setItem(this.LOCAL_STORAGE_TOKEN, token ?? '');
+        this.updateUser();
+
+        resolve();
+      },
+      () => {
+        reject();
+      });
     });
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_NAME);
-    this.user = {} as UserModel;
+    localStorage.removeItem(this.LOCAL_STORAGE_TOKEN);
+    this.updateUser();
     this.client.setAuthToken('');
   }
-
-  isAuthenticated(): boolean {
-    return this.user !== undefined;
-  }
-
-  hasRole(roles: string[]): boolean {
-    return roles.some(r => this.user.roles.includes(r));
-  }
-}
-
-function getUser(token: string | undefined): any {
-  if (token === undefined) {
-    throw new Error('Token is undefined');
-  }
-
-  return JSON.parse(atob(token.split('.')[1])) as UserModel;
 }
 

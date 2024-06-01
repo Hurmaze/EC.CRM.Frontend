@@ -1,18 +1,48 @@
-import { Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { HomeComponent } from './components/home/home.component';
-import { StudentApplicationsComponent } from './components/student-applications/student-applications.component';
-import { FindMentorComponent } from './components/find-mentor/find-mentor.component';
-import { CriteriasWizardComponent } from './components/criterias-wizard/criterias-wizard.component';
-import { authenticationGuard } from './guards/authentication.guard';
-import { authorizationGuard } from './guards/authorization.guard';
-import { roles } from './common/roles';
+import { Route } from '@angular/router';
 
-export const routes: Routes = [
-    { path: 'login', component: LoginComponent },
-    { path: 'home', component: HomeComponent }, //canActivate: [authenticationGuard] },
-    { path: 'students', component: StudentApplicationsComponent, canActivate: [authenticationGuard, authorizationGuard], data: { roles: [roles.director, roles.mentor] } },
-    { path: 'find-mentor', component: FindMentorComponent, canActivate: [authenticationGuard, authorizationGuard], data: { roles: [roles.director] } },
-    { path: 'criterias-wizard', component: CriteriasWizardComponent, canActivate: [authenticationGuard, authorizationGuard], data: { roles: [roles.director] } },
-    { path: '**', redirectTo: 'home' },
+import { LoginComponent } from './templates/login/login.component';
+import { RequestComponent } from './templates/request/request.component';
+import { StudentsComponent } from './templates/students/students.component';
+import { FindMentorComponent } from './templates/find-mentor/find-mentor.component';
+import { CreateStudentComponent } from "./templates/create-student/create-student.component";
+import { EditStudentComponent } from "./templates/edit-student/edit-student.component";
+import { authGuard } from './guards/auth.guard';
+import { UserRoleType } from './types/user';
+
+export type AppRouteData = {
+  roles?: UserRoleType[],
+};
+
+export type AppRoute = Route & {
+  data?: AppRouteData
+};
+
+export const routes: AppRoute[] = [
+  {path: '', component: RequestComponent},
+  {path: 'login', component: LoginComponent},
+  {
+    path: 'students',
+    component: StudentsComponent,
+    canActivate: [authGuard],
+    data: {roles: ['Director', 'Mentor']}
+  },
+  {
+    path: 'create-student',
+    component: CreateStudentComponent,
+    canActivate: [authGuard],
+    data: {roles: ['Director', 'Mentor']}
+  },
+  {
+    path: 'edit-student/:id',
+    component: EditStudentComponent,
+    canActivate: [authGuard],
+    data: {roles: ['Director', 'Mentor']}
+  },
+  {
+    path: 'find-mentor/:id',
+    component: FindMentorComponent,
+    canActivate: [authGuard],
+    data: {roles: ['Director']}
+  },
+  {path: '**', redirectTo: ''},
 ];
