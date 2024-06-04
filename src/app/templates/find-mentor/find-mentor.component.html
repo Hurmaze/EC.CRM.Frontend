@@ -1,8 +1,8 @@
 <div class="wrapper">
-  <app-pre-screen [visible]="isLoading"/>
+  <app-pre-screen [visible]="isLoading" />
 
   <div>
-    <app-student-card *ngIf="student" [student]="student!" [findMentorView]="true"/>
+    <app-student-card *ngIf="student" [student]="student!" [findMentorView]="true" />
   </div>
 
   <div *ngIf="!mentor" class="footer">
@@ -14,9 +14,11 @@
   </div>
 
   <div *ngIf="mentor" class="footer">
-    <p>Ваш ментор <span class="name">{{mentor?.mentorName}}</span></p>
+    <p>Ваш ментор <span class="name">{{mentor?.mentorName}} з коефіцієнтом
+        {{mentor?.matchingCoefficient!.toFixed(6)}}</span></p>
     <app-button class="button" (onClick)="handleConfirmMentor()" [block]="true">Підтвердити ментора</app-button>
-    <app-button class="button" (onClick)="handleRequestMentor()" [block]="true" variant="secondary">Підібрати ментора знову</app-button>
+    <app-button class="button" (onClick)="handleRequestMentor()" [block]="true" variant="secondary">Підібрати ментора
+      знову</app-button>
     <p class="text">
       * Якщо підібраний не підходить, змініть оцінки та спробуйте ще раз.
     </p>

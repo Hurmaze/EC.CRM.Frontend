@@ -36,7 +36,7 @@ export class StudentRatingComponent implements OnInit {
   }
 
   get isRatingAvailable(): boolean {
-    if (this.user?.role === 'Director') return true;
+    if (this.user?.role === 'Director' && !this.rating.wasSetByMentor) return true;
     if (this.user?.role !== 'Mentor') return false;
 
     return this.isMyStudent;

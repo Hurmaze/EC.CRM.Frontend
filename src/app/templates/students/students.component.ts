@@ -7,6 +7,8 @@ import { StudentCardComponent } from "../../containers/student-card/student-card
 import { ButtonComponent } from "../../components/button/button.component";
 import { CriteriasModalComponent } from "../../containers/criterias-modal/criterias-modal.component";
 import { PreScreenComponent } from "../../components/pre-screen/pre-screen.component";
+import { TokenUser } from "../../types/user";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
   selector: 'app-student-applications',
@@ -20,12 +22,18 @@ export class StudentsComponent implements OnInit {
   isLoading: boolean = true;
   isModalVisible: boolean = false;
 
-  constructor(private client: Client) {}
+  constructor(private client: Client, private authService: AuthService) {}
+
+  user: TokenUser | null = null;
 
   ngOnInit(): void {
     this.client.applicationAll().subscribe((students: StudentResponse[]) => {
       this.students = students;
       this.isLoading = false;
+    });
+
+    this.authService.user.subscribe((user) => {
+      this.user = user;
     });
   }
 

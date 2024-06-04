@@ -50,7 +50,7 @@ export class Client extends BaseApiClient {
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     login(body: LoginRequest | undefined): Observable<AuthResponse> {
@@ -59,7 +59,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -90,25 +90,25 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     changePassword(body: ChangePasswordRequest | undefined): Observable<void> {
@@ -117,7 +117,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -147,24 +147,24 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+                return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param criteriasCount (optional)
-     * @param criteriasCsv (optional)
+     * @param criteriasCount (optional) 
+     * @param criteriasCsv (optional) 
      * @return OK
      */
     registerCriterias(criteriasCount: number | undefined, criteriasCsv: FileParameter | undefined): Observable<void> {
@@ -181,7 +181,7 @@ export class Client extends BaseApiClient {
         else
             content_.append("criteriasCsv", criteriasCsv.data, criteriasCsv.fileName ? criteriasCsv.fileName : "criteriasCsv");
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -210,16 +210,16 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+                return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -232,7 +232,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Criterias";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -261,18 +261,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Criteria[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Criteria[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -285,7 +285,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Mentors";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -314,18 +314,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -341,7 +341,7 @@ export class Client extends BaseApiClient {
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -370,18 +370,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -397,7 +397,7 @@ export class Client extends BaseApiClient {
         url_ = url_.replace("{userUid}", encodeURIComponent("" + userUid));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -425,23 +425,23 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+                return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     studentsPATCH(studentUid: string, body: boolean | undefined): Observable<MatchingResponse> {
@@ -453,7 +453,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -484,18 +484,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MatchingResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MatchingResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -511,7 +511,7 @@ export class Client extends BaseApiClient {
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -540,25 +540,25 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     studentsPUT(studentUid: string, body: UpdateUserRequest | undefined): Observable<void> {
@@ -570,7 +570,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -600,23 +600,23 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+                return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     valuations(studentUid: string, body: MentorValuationRequest[] | undefined): Observable<void> {
@@ -628,7 +628,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -658,16 +658,16 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+                return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -683,7 +683,7 @@ export class Client extends BaseApiClient {
         url_ = url_.replace("{studentUid}", encodeURIComponent("" + studentUid));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -712,18 +712,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorValuationResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MentorValuationResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -736,7 +736,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Students/application";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -765,25 +765,25 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     application(body: StudentApplicationRequest | undefined): Observable<StudentResponse> {
@@ -792,7 +792,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -823,25 +823,25 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudentResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     users(body: CreateUserRequest | undefined): Observable<UserInfoResponse> {
@@ -850,7 +850,7 @@ export class Client extends BaseApiClient {
 
         const content_ = JSON.stringify(body);
 
-        let options_ : any = {
+        let options_: any = {
             body: content_,
             observe: "response",
             responseType: "blob",
@@ -881,18 +881,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -905,7 +905,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Users/me";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -934,18 +934,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UserInfoResponse;
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -958,7 +958,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Users/skills";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -987,18 +987,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as SkillResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as SkillResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -1011,7 +1011,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Users/locations";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -1040,18 +1040,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LocationResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LocationResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -1064,7 +1064,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Users/non-professional-interests";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -1093,18 +1093,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NonProfessionalInterestResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NonProfessionalInterestResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -1117,7 +1117,7 @@ export class Client extends BaseApiClient {
         let url_ = this.baseUrl + "/api/Users/study-fields";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
+        let options_: any = {
             observe: "response",
             responseType: "blob",
             withCredentials: true,
@@ -1146,18 +1146,18 @@ export class Client extends BaseApiClient {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudyFieldResponse[];
-            return _observableOf(result200);
+                let result200: any = null;
+                result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StudyFieldResponse[];
+                return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
         return _observableOf(null as any);
@@ -1245,6 +1245,7 @@ export interface MentorValuationRequest {
 export interface MentorValuationResponse {
     mentorUid?: string;
     mentorName?: string | undefined;
+    wasSetByMentor?: boolean | undefined;
     valuation?: number | undefined;
 }
 

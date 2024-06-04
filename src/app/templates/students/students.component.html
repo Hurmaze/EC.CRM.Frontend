@@ -8,7 +8,7 @@
       </app-button>
     </a>
 
-    <div>
+    <div *ngIf="user?.role === 'Director'">
       <app-button variant="secondary" (onClick)="showModal()">
         Завантажити критерії
       </app-button>
